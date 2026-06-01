@@ -15,7 +15,7 @@ const app = express();
 app.set("trust proxy", 1);
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: config.ALLOWED_ORIGINS,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
 }));
