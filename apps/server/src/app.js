@@ -13,26 +13,13 @@ const app = express();
 
 // app.set("trust proxy", 1);
 
-const allowedOrigins = config.ALLOWED_ORIGINS;
-
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // allow REST tools / server-to-server / curl
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      return callback(new Error("Not allowed by CORS: " + origin));
-    },
+    origin: "*",
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   }),
 );
-
-// app.options(cors());
 
 app.use(express.json());
 app.use(cookieParser());
