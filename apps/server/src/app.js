@@ -15,7 +15,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "*",
+    origin: "https://yecommerce.vercel.app",
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   }),
@@ -25,7 +25,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.get("/", (req, res) => {
-  res.send(`Yecommerce service is up and running. ${config.ALLOWED_ORIGINS}`);
+  res.send("Yecommerce service is up and running");
 });
 
 app.use("/api/auth", authRouter);
