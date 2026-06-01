@@ -27,7 +27,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.get("/", (req, res) => {
-  res.send("Yecommerce service is up and running.");
+  res.send(`Yecommerce service is up and running. ${config.ALLOWED_ORIGINS}`);
 });
 
 app.use("/api/auth", authRouter);
