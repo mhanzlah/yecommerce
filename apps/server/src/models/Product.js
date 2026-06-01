@@ -1,61 +1,64 @@
 import mongoose from "mongoose";
 
-const productSchema = new mongoose.Schema({
+const productSchema = new mongoose.Schema(
+  {
     name: {
-        type: String,
-        required: true,
-        trim: true,
+      type: String,
+      required: true,
+      trim: true,
     },
 
     slug: {
-        type: String,
-        required: true,
-        unique: true,
-        lowercase: true,
-        trim: true,
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
     },
 
     description: {
-        type: String,
-        trim: true,
+      type: String,
+      trim: true,
     },
 
     price: {
-        type: Number,
-        required: true,
-        min: 0,
+      type: Number,
+      required: true,
+      min: 0,
     },
 
     sizes: {
-        type: [
-            {
-                type: String,
-                enum: ["S", "M", "L", "XL", "XXL"],
-            }
-        ],
-        default: [],
+      type: [
+        {
+          type: String,
+          enum: ["S", "M", "L", "XL", "XXL"],
+        },
+      ],
+      default: ["S", "M", "L", "XL", "XXL"],
     },
 
     category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Category",
-        required: true,
-        index: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
+      index: true,
     },
 
     image: {
-        type: String,
+      type: String,
     },
 
     type: {
-        type: String,
+      type: String,
     },
 
     isPreOrder: {
-        type: Boolean,
-        default: false,
+      type: Boolean,
+      default: false,
     },
-}, { timestamps: true });
+  },
+  { timestamps: true },
+);
 
 const Product = mongoose.model("Product", productSchema);
 
