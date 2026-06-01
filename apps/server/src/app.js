@@ -9,19 +9,30 @@ import cartRouter from "./routes/cart.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import config from "./config/config.js";
 
-console.log(config.ALLOWED_ORIGINS);
-
 const app = express();
 
-app.set("trust proxy", 1);
+// app.set("trust proxy", 1);
+
+const allowedOrigins = config.ALLOWED_ORIGINS;
 
 app.use(
   cors({
-    origin: config.ALLOWED_ORIGINS,
+    origin: function (origin, callback) {
+      // allow REST tools / server-to-server / curl
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS: " + origin));
+    },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   }),
 );
+
+app.options("*", cors());
 
 app.use(express.json());
 app.use(cookieParser());
@@ -34,7 +45,7 @@ app.use("/api/auth", authRouter);
 
 app.use("/api/categories", categoryRouter);
 app.use("/api/products", productRouter);
-app.use("/api/cart", productRouter);
+// app.use("/api/cart", productRouter);
 
 app.use(errorMiddleware);
 
