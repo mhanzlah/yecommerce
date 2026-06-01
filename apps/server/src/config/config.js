@@ -19,7 +19,7 @@ requiredVars.forEach((key) => {
 
 const config = {
   ALLOWED_ORIGINS:
-    process.env.ALLOWED_ORIGINS.split(",") || "http:localhost:5173",
+    process.env.ALLOWED_ORIGINS?.split(",") || "http:localhost:5173",
   PORT: process.env.PORT || 3000,
   ENVIRONMENT: process.env.ENVIRONMENT || "development",
   MONGO_URI: process.env.MONGO_URI,
