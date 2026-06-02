@@ -2,9 +2,12 @@ import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../api/api";
+import { useBag } from "../context/BagContext";
 
-const Product = () => {
+const Products = () => {
   const { slug } = useParams();
+
+  const { bag, addToBag } = useBag();
 
   const [product, setProduct] = useState(null);
 
@@ -41,7 +44,6 @@ const Product = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
       <div className="flex flex-col lg:flex-row items-stretch gap-10 lg:gap-16">
-        {/* Image */}
         <div className="w-full lg:w-[60%] flex">
           <div className="bg-gray-100 rounded-2xl overflow-hidden h-full w-full">
             <img
@@ -52,9 +54,7 @@ const Product = () => {
           </div>
         </div>
 
-        {/* Product Info */}
         <div className="w-full lg:w-[40%] flex flex-col py-4">
-          {/* Product Header */}
           <div>
             <h1 className="text-2xl md:text-4xl font-medium leading-none">
               {product.name}
@@ -63,7 +63,6 @@ const Product = () => {
             <p className="text-sm mt-2">Rs. {product.price.toLocaleString()}</p>
           </div>
 
-          {/* Description */}
           <div className="py-6">
             <p className="text-sm leading-relaxed text-gray-600 whitespace-pre-line">
               {`This product is MADE TO ORDER. Please allow up to 2 weeks for production and shipping.
@@ -77,7 +76,6 @@ Please note: product images are digital mockups. Actual products may vary in col
             </p>
           </div>
 
-          {/* Sizes */}
           <div>
             <h3 className="text-sm font-medium mb-4">Size</h3>
 
@@ -103,9 +101,7 @@ Please note: product images are digital mockups. Actual products may vary in col
             </div>
           </div>
 
-          {/* Quantity + Cart */}
           <div className="py-6 flex flex-col md:flex-row gap-5">
-            {/* Quantity */}
             <div>
               <div className="inline-flex h-14 items-center border border-gray-300 rounded-lg overflow-hidden">
                 <button
@@ -131,7 +127,6 @@ Please note: product images are digital mockups. Actual products may vary in col
               </div>
             </div>
 
-            {/* Add to Cart */}
             <button
               disabled={!selectedSize}
               className={clsx(
@@ -140,10 +135,11 @@ Please note: product images are digital mockups. Actual products may vary in col
                   ? "bg-black text-white hover:opacity-90"
                   : "bg-gray-200 text-gray-500 cursor-not-allowed",
               )}
+              onClick={() => addToBag(product, selectedSize, quantity)}
             >
               {selectedSize ? (
                 <div className="flex items-center justify-between w-full">
-                  <span>Add to Cart</span>
+                  <span>Add to bag</span>
 
                   <span>Rs. {(product.price * quantity).toLocaleString()}</span>
                 </div>
@@ -158,4 +154,4 @@ Please note: product images are digital mockups. Actual products may vary in col
   );
 };
 
-export default Product;
+export default Products;

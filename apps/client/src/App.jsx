@@ -3,19 +3,10 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 
 import Loader from "./components/Loader";
-import Layout from "./layouts/Layout";
+import MainLayout from "./layouts/MainLayout";
 
-// import AdminRoute from "./components/AdminRoute";
-// import GuestRoute from "./components/GuestRoute";
-// import ProtectedRoute from "./components/ProtectedRoute";
-
-// const Admin = lazy(() => import("./pages/Admin"));
 const Shop = lazy(() => import("./pages/Shop"));
-// const Contact = lazy(() => import("./pages/Contact"));
-// const Login = lazy(() => import("./pages/Login"));
-// const SignUp = lazy(() => import("./pages/SignUp"));
-// const Account = lazy(() => import("./pages/Account"));
-const Product = lazy(() => import("./pages/Product"));
+const Products = lazy(() => import("./pages/Products"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const App = () => {
@@ -24,30 +15,12 @@ const App = () => {
       <Router>
         <Suspense fallback={<Loader />}>
           <Routes>
-            <Route path="/" element={<Layout />}>
-
+            <Route path="/" element={<MainLayout />}>
               <Route index element={<Shop />} />
 
-              {/* <Route path="contact" element={<Contact />} /> */}
+              <Route path="/category/:parent/:child?" element={<Shop />} />
 
-              {/* <Route element={<GuestRoute />}> */}
-                {/* <Route path="login" element={<Login />} /> */}
-                {/* <Route path="sign-up" element={<SignUp />} /> */}
-              {/* </Route> */}
-
-              {/* <Route element={<ProtectedRoute />}> */}
-                {/* <Route path="account" element={<Account />} /> */}
-
-                {/* <Route element={<AdminRoute />}> */}
-                  {/* <Route path="admin" element={<Admin />} /> */}
-                {/* </Route> */}
-              {/* </Route> */}
-
-              <Route path="/category/:category" element={<Shop />} />
-
-              <Route path="product/:slug" element={<Product />} />
-
-              <Route path=":parent" element={<Shop />} />
+              <Route path="/product/:slug" element={<Products />} />
 
               <Route path="*" element={<NotFound />} />
             </Route>
@@ -55,7 +28,7 @@ const App = () => {
         </Suspense>
       </Router>
     </HelmetProvider>
-  )
-}
+  );
+};
 
-export default App
+export default App;

@@ -3,67 +3,30 @@ import Breadcrumbs from "../components/Breadcrumbs";
 import { useEffect, useState } from "react";
 
 import api from "../api/api";
+import { useCategories } from "../hooks/useCategories";
+import { useProducts } from "../hooks/useProducts";
+
+import Category from "../components/Category";
+import Product from "../components/Product";
 
 const Shop = () => {
-  const { parent, category } = useParams();
-
-  const isHomePage = !parent && !category;
-  const isParentPage = parent && !category;
-  const isCategoryPage = !parent && category;
-
-  const [categories, setCategories] = useState([]);
-  const [products, setProducts] = useState([]);
+  const { parent, child } = useParams();
 
   const [filters, setFilters] = useState({
     price: null,
     sort: "relevance",
   });
 
-  const [isLoading, setIsLoading] = useState(true);
+  const { categories, loading: catLoading } = useCategories(parent);
 
-  const load = async () => {
-    try {
-      setIsLoading(true);
+  const activeCategory = child || parent;
+  const category = categories.find((c) => c.slug === activeCategory);
 
-      if (isHomePage) {
-        const { data: cats } = await api.get("/categories/parent");
-        setCategories(cats);
+  const { products, loading: prodLoading } = useProducts(parent, filters);
 
-        const { data: prods } = await api.get(
-          `/products?price=${filters.price}&sort=${filters.sort}`,
-        );
-        setProducts(prods);
-      } else if (isParentPage) {
-        const { data: cats } = await api.get(
-          `/categories/subcategories/${parent}`,
-        );
-        setCategories(cats);
-
-        const { data: prods } = await api.get(
-          `/products?category=${parent}&price=${filters.price}&sort=${filters.sort}`,
-        );
-        setProducts(prods);
-      } else {
-        setCategories([]);
-        const { data: prods } = await api.get(
-          `/products?category=${category}&price=${filters.price}&sort=${filters.sort}`,
-        );
-        setProducts(prods);
-      }
-    } catch (error) {
-      setCategories([]);
-      setProducts([]);
-      console.error(error.message || "Failed to fetch categories");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    load();
-  }, [parent, category, filters]);
-
-  if (isLoading) return <div>Loading...</div>;
+  const isHomePage = !parent && !child;
+  const isParentPage = parent && !child;
+  const isCategoryPage = parent && child;
 
   return (
     <div className="px-4 md:px-8 py-10 md:py-12">
@@ -77,9 +40,7 @@ const Shop = () => {
       <div className="mb-12">
         <h1 className="font-druk text-2xl md:text-4xl leading-none">
           Shop{" "}
-          <span className="capitalize">
-            {category ? category : "Yecommerce"}
-          </span>
+          <span className="capitalize">{child ? parent : "Yecommerce"}</span>
         </h1>
 
         {isHomePage && (
@@ -101,26 +62,29 @@ const Shop = () => {
           {isCategoryPage ? (
             <Breadcrumbs
               items={[
-                { name: "Shop clothing", to: "/clothing" },
-                { name: `Shop ${category}` },
+                { name: `Shop ${parent}`, to: `/category/${parent}` },
+                { name: `Shop ${child}` },
               ]}
             />
           ) : (
             <ul className="flex flex-wrap items-center gap-2">
-              {categories.map((cat) => (
-                <li key={cat.name}>
-                  <Link
-                    to={isHomePage ? cat.name : `/category/${cat.name}`}
-                    className="px-4 py-2 text-sm text-gray-500 border border-gray-300 rounded-full hover:text-black hover:border-black transition capitalize"
-                  >
-                    {cat.name}
-                  </Link>
-                </li>
-              ))}
+              {catLoading
+                ? Array.from({ length: 3 }).map((_, idx) => (
+                    <Category key={idx} skeleton={true} />
+                  ))
+                : categories.map((cat) => (
+                    <li key={cat.name}>
+                      <Category
+                        category={cat}
+                        prefix={
+                          isHomePage ? "/category" : `/category/${parent}`
+                        }
+                      />
+                    </li>
+                  ))}
             </ul>
           )}
 
-          {/* Sort */}
           <div className="flex flex-wrap items-center gap-3">
             <div className="px-4 py-2 text-sm rounded-full hover:bg-gray-100 transition w-max">
               <select
@@ -139,7 +103,13 @@ const Shop = () => {
             </div>
 
             <p className="text-sm text-gray-500 whitespace-nowrap">
-              {products.length} Product(s)
+              {prodLoading ? (
+                <span className="inline-block w-24 py-2 bg-gray-100 text-transparent rounded-full">
+                  000 Products
+                </span>
+              ) : (
+                <span>{products.length} Product(s)</span>
+              )}
             </p>
           </div>
         </div>
@@ -214,44 +184,14 @@ const Shop = () => {
         {/* Products */}
         <main className="lg:col-span-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-            {products.length < 1 ? (
+            {prodLoading ? (
+              Array.from({ length: 4 }).map((_, idx) => (
+                <Product key={idx} skeleton={true} />
+              ))
+            ) : products.length < 1 ? (
               <div>No products found</div>
             ) : (
-              products.map((product) => (
-                <Link
-                  key={product.name}
-                  to={`/product/${product.slug}`}
-                  className="block group"
-                >
-                  <div className="bg-gray-100 rounded-2xl overflow-hidden relative aspect-square mb-3">
-                    <div className="absolute top-3 left-3 z-10 flex items-center gap-2 text-[11px] uppercase">
-                      <span className="bg-black text-white rounded-full px-2.5 py-1 transition duration-300 group-hover:text-transparent group-hover:bg-transparent">
-                        {product.type}
-                      </span>
-
-                      {product.isPreOrder && (
-                        <span className="bg-white text-black rounded-full px-2.5 py-1 transition duration-300 group-hover:text-transparent group-hover:bg-transparent">
-                          Pre-Order
-                        </span>
-                      )}
-                    </div>
-
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                    />
-                  </div>
-
-                  <div>
-                    <h2 className="text-sm font-medium">{product.name}</h2>
-
-                    <p className="text-sm text-gray-500 mt-1">
-                      Rs. {product.price.toLocaleString()}
-                    </p>
-                  </div>
-                </Link>
-              ))
+              products.map((product) => <Product product={product} />)
             )}
           </div>
         </main>
