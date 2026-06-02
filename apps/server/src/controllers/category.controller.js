@@ -3,6 +3,12 @@ import slugify from "slugify";
 import Category from "../models/Category.js";
 import AppError from "../utils/AppError.js";
 
+export const getCategories = async (req, res) => {
+  const all = await Category.find().select("slug");
+
+  res.json(all);
+};
+
 export const getParentCategories = async (req, res) => {
   const categories = await Category.find({ parent: null });
 

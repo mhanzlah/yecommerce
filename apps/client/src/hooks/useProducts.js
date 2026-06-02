@@ -21,8 +21,6 @@ export const useProducts = (category, filters) => {
         const res = await api.get(`/products?${query.toString()}`);
 
         setProducts(res.data || []);
-
-        console.log("CATEGORY", category);
       } catch (err) {
         console.error(err);
         setError(err.message || "Failed to fetch products");

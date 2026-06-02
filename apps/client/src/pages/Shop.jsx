@@ -1,13 +1,13 @@
+import { lazy, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Breadcrumbs from "../components/Breadcrumbs";
-import { useEffect, useState } from "react";
-
-import api from "../api/api";
 import { useCategories } from "../hooks/useCategories";
 import { useProducts } from "../hooks/useProducts";
-
 import Category from "../components/Category";
 import Product from "../components/Product";
+import api from "../api/api";
+
+import NotFound from "./NotFound";
 
 const Shop = () => {
   const { parent, child } = useParams();
@@ -17,16 +17,23 @@ const Shop = () => {
     sort: "relevance",
   });
 
-  const { categories, loading: catLoading } = useCategories(parent);
+  const { all, categories, loading: catLoading } = useCategories(parent);
 
-  const activeCategory = child || parent;
-  const category = categories.find((c) => c.slug === activeCategory);
+  const slug = child || parent;
+
+  const category = all?.find((c) => c.slug === slug);
+
+  console.log(all);
 
   const { products, loading: prodLoading } = useProducts(parent, filters);
 
   const isHomePage = !parent && !child;
   const isParentPage = parent && !child;
   const isCategoryPage = parent && child;
+
+  if (!catLoading && slug && !category) {
+    return <NotFound />;
+  }
 
   return (
     <div className="px-4 md:px-8 py-10 md:py-12">
@@ -36,7 +43,6 @@ const Shop = () => {
         />
       )}
 
-      {/* Header */}
       <div className="mb-12">
         <h1 className="font-druk text-2xl md:text-4xl leading-none">
           Shop{" "}
@@ -51,14 +57,12 @@ const Shop = () => {
         )}
       </div>
 
-      {/* Categories + Sort */}
       <div className="mb-10">
         {isHomePage && (
           <h2 className="text-2xl md:text-4xl font-medium mb-5">Categories</h2>
         )}
 
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-          {/* Categories */}
           {isCategoryPage ? (
             <Breadcrumbs
               items={[
@@ -115,9 +119,7 @@ const Shop = () => {
         </div>
       </div>
 
-      {/* Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
-        {/* Filters */}
         <aside className="lg:col-span-1 lg:sticky lg:top-24 h-max">
           <h3 className="text-lg font-medium mb-5">Filters</h3>
 
@@ -181,15 +183,33 @@ const Shop = () => {
           </div>
         </aside>
 
-        {/* Products */}
         <main className="lg:col-span-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+          <div className="border-l border-gray-50 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
             {prodLoading ? (
               Array.from({ length: 4 }).map((_, idx) => (
                 <Product key={idx} skeleton={true} />
               ))
             ) : products.length < 1 ? (
-              <div>No products found</div>
+              <div className="col-span-full flex flex-col items-center justify-center py-20 text-center">
+                <h3 className="text-lg md:text-xl font-medium text-gray-900">
+                  No products found
+                </h3>
+                <p className="text-sm text-gray-500 mt-2 max-w-md">
+                  We couldn't find any products matching your filters. Try
+                  adjusting your selection or explore other categories.
+                </p>
+                <button
+                  onClick={() =>
+                    setFilters({
+                      price: null,
+                      sort: "relevance",
+                    })
+                  }
+                  className="mt-6 h-11 px-5 bg-black text-white text-sm rounded-lg hover:opacity-90 transition"
+                >
+                  Clear filters
+                </button>
+              </div>
             ) : (
               products.map((product) => <Product product={product} />)
             )}

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../api/api";
 import { useBag } from "../context/BagContext";
+import NotFound from "./NotFound";
 
 const Products = () => {
   const { slug } = useParams();
@@ -10,13 +11,18 @@ const Products = () => {
   const { bag, addToBag } = useBag();
 
   const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const load = async () => {
+    setLoading(true);
     try {
       const res = await api.get(`/products/${slug}`);
       setProduct(res.data);
-    } catch {
+    } catch (err) {
+      console.error(err);
       setProduct(null);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,7 +45,50 @@ const Products = () => {
     return sizes[s] || s;
   };
 
-  if (!product) return <div>Not found</div>;
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
+        <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
+          <div className="w-full lg:w-[60%]">
+            <div className="bg-gray-200 animate-pulse rounded-2xl h-125 w-full" />
+          </div>
+
+          <div className="w-full lg:w-[40%] space-y-6">
+            <div className="space-y-3">
+              <div className="h-6 bg-gray-200 animate-pulse rounded w-3/4" />
+              <div className="h-4 bg-gray-200 animate-pulse rounded w-1/3" />
+            </div>
+
+            <div className="space-y-2">
+              <div className="h-3 bg-gray-200 animate-pulse rounded w-full" />
+              <div className="h-3 bg-gray-200 animate-pulse rounded w-5/6" />
+              <div className="h-3 bg-gray-200 animate-pulse rounded w-4/6" />
+            </div>
+
+            <div className="space-y-3">
+              <div className="h-4 bg-gray-200 animate-pulse rounded w-1/4" />
+
+              <div className="flex gap-2 flex-wrap">
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="h-10 w-16 bg-gray-200 animate-pulse rounded-lg"
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <div className="h-14 w-40 bg-gray-200 animate-pulse rounded-lg" />
+              <div className="h-14 flex-1 bg-gray-200 animate-pulse rounded-lg" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) return <NotFound />;
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
