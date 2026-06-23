@@ -7,6 +7,7 @@ import MainLayout from "./layouts/MainLayout";
 
 const Shop = lazy(() => import("./pages/Shop"));
 const Products = lazy(() => import("./pages/Products"));
+const Search = lazy(() => import("./pages/Search"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const App = () => {
@@ -21,6 +22,8 @@ const App = () => {
               <Route path="/category/:parent/:child?" element={<Shop />} />
 
               <Route path="/product/:slug" element={<Products />} />
+
+              <Route path="/search" element={<Search />} />
 
               <Route path="*" element={<NotFound />} />
             </Route>

@@ -44,7 +44,7 @@ export const createProduct = async (req, res) => {
 };
 
 export const getProducts = async (req, res) => {
-  const { category, price, sort } = req.query;
+  const { category, price, sort, search } = req.query;
 
   let filter = {};
 
@@ -83,6 +83,13 @@ export const getProducts = async (req, res) => {
 
   if (price === "under_20000") {
     filter.price = { $lt: 20000 };
+  }
+
+  if (search) {
+    filter.name = {
+      $regex: search,
+      $options: "i",
+    };
   }
 
   let sortOption = {};
